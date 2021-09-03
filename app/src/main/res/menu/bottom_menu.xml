@@ -11,7 +11,7 @@
         android:title="favourite"
         android:icon="@drawable/ic_action_favourite"/>
     <item
-        android:id="@+id/pofile"
+        android:id="@+id/profile"
         android:title="profile"
         android:icon="@drawable/ic_action_profile"/>
 
