@@ -21,6 +21,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline7" />
 
     <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_GsignUp"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/my_button"

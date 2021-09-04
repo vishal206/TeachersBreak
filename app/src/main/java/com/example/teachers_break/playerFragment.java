@@ -1,64 +1,154 @@
 package com.example.teachers_break;
 
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link playerFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.w3c.dom.Document;
+
+import java.io.IOException;
+
 public class playerFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public playerFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment playerFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static playerFragment newInstance(String param1, String param2) {
-        playerFragment fragment = new playerFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    FloatingActionButton btn_play;
+    private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
+    private FirebaseFirestore db;
+    MediaPlayer mediaPlayer;
+    private boolean playing;
+    TextView tv_songTitle;
+    private SeekBar seekBar;
+    private Handler handler=new Handler();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_player, container, false);
+        View view=inflater.inflate(R.layout.fragment_player, container, false);
+
+        btn_play=view.findViewById(R.id.btn_play);
+        tv_songTitle=view.findViewById(R.id.tv_songTitle);
+        seekBar=view.findViewById(R.id.seekBar);
+        playing=false;
+
+        mAuth=FirebaseAuth.getInstance();
+        db=FirebaseFirestore.getInstance();
+
+        btn_play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (playing==false){
+                    playAudio(1);
+                    playing=true;
+//                    seekBar.setMax(mediaPlayer.getDuration()/1000);
+//                    seekBar.setProgress(mediaPlayer.getDuration()/1000);
+//                    Toast.makeText(getContext(), mediaPlayer.getDuration()/1000+"", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    mediaPlayer.stop();
+                    mediaPlayer.reset();
+                    mediaPlayer.release();
+                    mediaPlayer=null;
+                    playing=false;
+//                    Toast.makeText(getContext(), "audio paused", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (mediaPlayer!=null && fromUser){
+                    mediaPlayer.seekTo(progress*1000 );
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mediaPlayer!=null){
+                        int mCurrentPosition=mediaPlayer.getCurrentPosition()/1000;
+                        seekBar.setProgress(mCurrentPosition);
+                    }
+                    handler.postDelayed(this,1000);
+                }
+            });
+
+
+        return view;
     }
+
+    private String audioUrl;
+
+    private void playAudio(int i) {
+        mediaPlayer =new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+            mUser=mAuth.getCurrentUser();
+            String uid=mUser.getUid();
+            db.collection("songs").document(Integer.toString(i)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()){
+                        DocumentSnapshot doc=task.getResult();
+                        if (doc.exists()){
+                            audioUrl =doc.get("songUrl").toString();
+                            tv_songTitle.setText(doc.get("songTitle").toString());
+                            try {
+                                mediaPlayer.setDataSource(audioUrl);
+                                mediaPlayer.prepare();
+                                mediaPlayer.start();
+
+                            }catch (IOException e){
+                                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }else {
+                            Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            });
+    }
+
+//    public void updateProgressBar(){
+//        handler.postDelayed(mUpdateTimeTask,100);
+//    }
+//
+//    private Runnable mUpdateTimeTask=new Runnable() {
+//        @Override
+//        public void run() {
+//
+//        }
+//    };
 }
