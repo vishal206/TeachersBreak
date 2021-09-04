@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "573923331944",
+    "project_id": "teachers-break",
+    "storage_bucket": "teachers-break.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573923331944:android:6e5277829f498a6a76d0dd",
+        "android_client_info": {
+          "package_name": "com.example.teachers_break"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "573923331944-c9tokqfnfojr4k3v9vg1q8ge40k3urrq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiz1gnjIYPRDPZYczoXWwtRMCFKNOcXiI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "573923331944-c9tokqfnfojr4k3v9vg1q8ge40k3urrq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
