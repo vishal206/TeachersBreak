@@ -13,9 +13,9 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:autoSizeTextType="uniform"
-        android:fontFamily="@font/roboto_bold"
+        android:fontFamily="@font/roboto_thin"
         android:gravity="center"
-        android:text="Title"
+        android:text="Hit play &amp; relax"
         android:textColor="@color/black"
         app:layout_constraintBottom_toTopOf="@+id/guideline33"
         app:layout_constraintEnd_toStartOf="@+id/guideline30"
@@ -59,7 +59,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline21" />
 
     <ImageButton
-        android:id="@+id/imageButton4"
+        android:id="@+id/btn_nextSong"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/white"

@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
+import java.util.Random;
 
 public class playerFragment extends Fragment {
 
@@ -39,6 +41,9 @@ public class playerFragment extends Fragment {
     TextView tv_songTitle;
     private SeekBar seekBar;
     private Handler handler=new Handler();
+    private int songNum;
+    private Random rand;
+    private ImageButton btn_next;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,6 +54,7 @@ public class playerFragment extends Fragment {
         btn_play=view.findViewById(R.id.btn_play);
         tv_songTitle=view.findViewById(R.id.tv_songTitle);
         seekBar=view.findViewById(R.id.seekBar);
+        rand=new Random();
         playing=false;
 
         mAuth=FirebaseAuth.getInstance();
@@ -58,8 +64,9 @@ public class playerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (playing==false){
-                    playAudio(1);
-                    playing=true;
+                    songNum= rand.nextInt(5);
+                    setEver(songNum+1);
+
 //                    seekBar.setMax(mediaPlayer.getDuration()/1000);
 //                    seekBar.setProgress(mediaPlayer.getDuration()/1000);
 //                    Toast.makeText(getContext(), mediaPlayer.getDuration()/1000+"", Toast.LENGTH_SHORT).show();
@@ -70,8 +77,24 @@ public class playerFragment extends Fragment {
                     mediaPlayer.release();
                     mediaPlayer=null;
                     playing=false;
+                    btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24);
 //                    Toast.makeText(getContext(), "audio paused", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        btn_next=view.findViewById(R.id.btn_nextSong);
+        btn_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mediaPlayer.stop();
+                mediaPlayer.reset();
+                mediaPlayer.release();
+                mediaPlayer=null;
+                playing=false;
+                btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+                songNum= rand.nextInt(5);
+                setEver(songNum+1);
             }
         });
 
@@ -111,6 +134,12 @@ public class playerFragment extends Fragment {
 
     private String audioUrl;
 
+    public void setEver(int num){
+        playAudio(songNum);
+        playing=true;
+        btn_play.setImageResource(R.drawable.ic_pause_24);
+    }
+
     private void playAudio(int i) {
         mediaPlayer =new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -134,6 +163,7 @@ public class playerFragment extends Fragment {
                                 Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         }else {
+                            System.out.println("++++++++++++++++++++: "+i);
                             Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
                         }
                     }
